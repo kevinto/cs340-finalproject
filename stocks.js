@@ -4,18 +4,19 @@ function populateComboBoxes() {
   var popCustComBoFunc = function(request){
     return function() {
       if(request.readyState == 4) {
-        var container = document.getElementById('custView');
-        container.innerHTML = request.responseText;
+        var container = document.getElementsByName('viewCustSelect');
+        container = container[0];
+
+        container.options[container.options.length] = new Option(request.responseText, 'blah'); 
       }
     }
   };
-  callStockPhp(popCustComBoFunc);
-
+  callStockPhp('getCustNames',popCustComBoFunc);
 }
 
-function callStockPhp(returnFunc) {
+function callStockPhp(phpFuncName, returnFunc) {
   var request = new XMLHttpRequest();
-  var url = 'stocks.php';
+  var url = 'stocks.php?' + phpFuncName + '=true';
   if (!request){
     return false;
   }
