@@ -2,21 +2,213 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Login</title>
+  <title>Stock Database</title>
 </head>
 <body>
-  <form action="http://www.googl" method="post">
+  <h1>Database Insert Section:</h1>
+  <form action="http://www.google" method="GET">
     <fieldset>
-      <label>First Name: </label>
-      <input type="text" name="firstName"><br>
-      <label>Last Name: </label>
-      <input type="text" name="lastName"><br>
-      <label>Social Security Number: </label>
-      <input type="number" name="soSecNum"><br>
-    </fieldset>
-    <fieldset>
-      <input type="submit" value="Add Customer">
+        <legend>Add a customer:</legend>
+        <label>First Name: </label>
+        <input type="text" name="firstName"><br>
+        <label>Last Name: </label>
+        <input type="text" name="lastName"><br>
+        <label>Social Security Number: </label>
+        <input type="number" name="soSecNum"><br>
+        <input type="submit" value="Add Customer">
     </fieldset>
   </form>
+  <form action="http://www.google" method="GET">
+    <fieldset>
+      <legend>Add a stock:</legend>
+      <label>Stock Name: </label>
+      <input type="text" name="stockName"><br>
+      <label>Stock Symbol: </label>
+      <input type="text" name="stockSymbol"><br>
+      <label>Stock Price: </label>
+      <input type="number" name="stockPrice"><br>
+      <input type="submit" value="Add Stock">
+    </fieldset>
+  </form>
+  <form action="http://www.google" method="GET">
+    <fieldset>
+      <legend>Add a fee for a customer:</legend>
+      <label>Fee Name: </label>
+      <input type="text" name="feeName"><br>
+      <label>Fee Amount: </label>
+      <input type="number" name="feeAmt"><br>
+      <label>Select customer to associate a fee to: </label>
+      <select name="cusFeeSelect">
+      </select><br>
+      <input type="submit" value="Add Fee for Customer">
+    </fieldset>
+  </form>
+  <form action="http://www.google" method="GET">
+    <fieldset>
+      <legend>Add a bank account for a customer:</legend>
+      <label>Bank Name: </label>
+      <input type="text" name="bankName"><br>
+      <label>Account Number: </label>
+      <input type="number" name="bankAcctNum"><br>
+      <label>Select customer to associate the bank account to: </label>
+      <select name="cusBankSelect">
+      </select><br>
+      <input type="submit" value="Add Bank Account for Customer">
+    </fieldset>
+  </form>
+  <form action="http://www.google" method="GET">
+    <fieldset>
+      <legend>Add a stock order for a customer:</legend>
+      <label>Order status: </label>
+      <select name="orderStatus">
+        <option value="open">Open</option>  
+        <option value="executed">Executed</option>  
+        <option value="closed">Closed</option>  
+      </select><br>
+      <label>Order type: </label>
+      <select name="orderType">
+        <option value="buy">Buy</option>  
+        <option value="sell">Sell</option>  
+      </select><br>
+      <label>Quantity Ordered: </label>
+      <input type="number" name="qtyOrd"><br>
+      <label>Order Start Date: </label>
+      <input type="date" name="ordStartDate"><br>
+      <label>Select the stock symbol that is associated to the stock order: </label>
+      <select name="ordStockSelect">
+      </select><br>
+      <label>Select the customer that is associated to the stock order: </label>
+      <select name="ordCustSelect">
+      </select><br>
+      <input type="submit" value="Add a Stock Order for a Customer">
+    </fieldset>
+  </form>
+    <form action="http://www.google" method="GET">
+    <fieldset>
+      <legend>Add stock ownership for a customer:</legend>
+      <label>Select the stock symbol that will be associated with the customer: </label>
+      <select name="stockForCustSelect">
+      </select><br>
+      <label>Select the customer that will be associated to a stock: </label>
+      <select name="custForStockSelect">
+      </select><br>
+      <label>Quantity of stock the customer owns: </label>
+      <input type="number" name="qtyOwned"><br> 
+      <input type="submit" value="Add a Stock Association for a Customer">
+    </fieldset>
+  </form>
+  <h1>View Table Data Section: </h1>
+  <div>
+    <h2>Customer Info Section:</h2>
+    <form action="http://www.google" method="GET">
+      <fieldset>
+        <legend>Please select a customer you want to view info on:</legend>
+        <select name="viewCustSelect">
+          <option value="FirstnameLastname">SampleFirstName SampleLastName</option> 
+        </select><br>
+        <input type="submit" value="View Customer">
+      </fieldset>
+    </form>
+    <h3>Selected Customer Info:</h3>
+    <div class="custView">
+      No customers currently selected. 
+    </div><br><br>
+  </div>
+  <div>
+    <h2>Stocks Info Section:</h2>
+    <form action="http://www.google" method="GET">
+      <fieldset>
+        <legend>Please select a stock you want to view info on:</legend>
+        <select name="viewStockSelect">
+          <option value="SampleStockName">SampleStockName</option> 
+        </select><br>
+        <input type="submit" value="View Stock">
+      </fieldset>
+    </form>
+    <h3>Selected Stock Info:</h3>
+    <div class="stocksView">
+      No stocks currently selected. 
+    </div><br><br>
+  </div> 
+  <div>
+    <h2>Fee Info Section:</h2>
+    <form action="http://www.google" method="GET">
+      <fieldset>
+        <legend>Please select a customer to view fee info on:</legend>
+        <select name="viewCustFeeSelect">
+          <option value="FirstnameLastname">SampleFirstName SampleLastName</option>  
+        </select><br>
+        <input type="submit" value="View Fees">
+      </fieldset>
+    </form>
+    <h3>Selected Fee Info:</h3>
+    <div class="custFeeView">
+      No Fees currently selected. 
+    </div><br><br>
+  </div>
+  <div>
+    <h2>Stock Ownership Info Section:</h2>
+    <form action="http://www.google" method="GET">
+      <fieldset>
+        <legend>Please select a customer to view their stock holdings:</legend>
+        <select name="viewCustStockSelect">
+          <option value="FirstnameLastname">SampleFirstName SampleLastName</option>  
+        </select><br>
+        <input type="submit" value="View Stocks Owned">
+      </fieldset>
+    </form>
+    <h3>Selected Stock Ownership Info:</h3>
+    <div class="custOwnedStocksView">
+      No customers currently selected. 
+    </div><br><br>
+  </div>
+  <div>
+    <h2>All Open Stock Orders:</h2>
+    <div class="openStockOrdersView">
+      There are currently no OPEN stock orders.
+    </div><br><br>
+  </div>
+  <div>
+    <h2>Customer Bank Account Info Section:</h2>
+    <form action="http://www.google" method="GET">
+      <fieldset>
+        <legend>Please select a customer to view their bank account info:</legend>
+        <select name="viewCustBankSelect">
+          <option value="FirstnameLastname">SampleFirstName SampleLastName</option>  
+        </select><br>
+        <input type="submit" value="View Customer Bank Info">
+      </fieldset>
+    </form>
+    <h3>Selected Customer Bank Account Info:</h3>
+    <div class="custBankAcctView">
+      No customers currently selected. 
+    </div><br><br>
+  </div>
+  <div>
+    <h1>Customer Deletion Section:</h1>
+    <form action="http://www.google" method="GET">
+      <fieldset>
+        <legend>Please select a customer delete: </legend>
+        <select name="delCustBankSelect">
+          <option value="FirstnameLastname">SampleFirstName SampleLastName</option>  
+        </select><br>
+        <input type="submit" value="Delete Customer">
+      </fieldset>
+    </form>
+  </div>
+  <div>
+    <h1>Stock Price Update Section: </h1>
+    <form action="http://www.google" method="GET">
+      <fieldset>
+        <legend>Please select a stock to update the price of:</legend>
+        <select name="updStockPriceSelect">
+          <option value="SampleStockName">SampleStockName</option> 
+        </select><br>
+        <label>New Price (example: 9.99): </label>
+        <input type="number" name="updatedStkPrice"><br> 
+        <input type="submit" value="Update Price">
+      </fieldset>
+    </form>
+  </div>
 </body>
 </html>
