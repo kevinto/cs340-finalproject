@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Stock Database</title>
+  <script src='stocks.js'></script>
 </head>
-<body>
+<body onload="populateComboBoxes();">
   <h1>Database Insert Section:</h1>
   <form action="http://www.google" method="GET">
     <fieldset>
@@ -110,7 +111,7 @@
       </fieldset>
     </form>
     <h3>Selected Customer Info:</h3>
-    <div class="custView">
+    <div id="custView">
       No customers currently selected. 
     </div><br><br>
   </div>
@@ -126,7 +127,7 @@
       </fieldset>
     </form>
     <h3>Selected Stock Info:</h3>
-    <div class="stocksView">
+    <div id="stocksView">
       No stocks currently selected. 
     </div><br><br>
   </div> 
@@ -142,7 +143,7 @@
       </fieldset>
     </form>
     <h3>Selected Fee Info:</h3>
-    <div class="custFeeView">
+    <div id="custFeeView">
       No Fees currently selected. 
     </div><br><br>
   </div>
@@ -158,13 +159,13 @@
       </fieldset>
     </form>
     <h3>Selected Stock Ownership Info:</h3>
-    <div class="custOwnedStocksView">
+    <div id="custOwnedStocksView">
       No customers currently selected. 
     </div><br><br>
   </div>
   <div>
     <h2>All Open Stock Orders:</h2>
-    <div class="openStockOrdersView">
+    <div id="openStockOrdersView">
       There are currently no OPEN stock orders.
     </div><br><br>
   </div>
@@ -180,7 +181,7 @@
       </fieldset>
     </form>
     <h3>Selected Customer Bank Account Info:</h3>
-    <div class="custBankAcctView">
+    <div id="custBankAcctView">
       No customers currently selected. 
     </div><br><br>
   </div>
