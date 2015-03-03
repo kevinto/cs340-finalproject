@@ -8,6 +8,7 @@ function populateComboBoxes() {
         container = container[0];
 
         container.options[container.options.length] = new Option(request.responseText, 'blah'); 
+        
       }
     }
   };
