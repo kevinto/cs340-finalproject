@@ -11,9 +11,42 @@
   }
 
   if ($_SERVER['REQUEST_METHOD'] === 'GET' && count($_GET) > 0) {
-    if (isset($_GET['getCustNames']) && $_GET['getCustNames'] == true) {
+    if (isset($_GET['getAllCustInfo'])) {
       getAllCustomerRecords();
     }
+
+    if (isset($_GET['getOneCustInfo'])) {
+      getSingleCustomerInfo();
+    }
+  }
+
+  function getSingleCustomerInfo() {
+    global $mysqli;
+
+    // Prepare the select statment
+    if (!($stmt = $mysqli->prepare("SELECT first_name, last_name, social_security_num FROM customer;"))) {
+      echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+      die();
+    }
+
+    if (!$stmt->execute()) {
+      echo "Execute failed: (" . $mysqli->errno . ") " . $mysqli->error;
+    }
+
+    if (!($res = $stmt->get_result())) {
+      echo "Getting result set failed: (" . $stmt->errno . ") " . $stmt->error;
+    }
+
+    // No results were returned, exit.
+    if ($res->num_rows === 0) {
+      return;
+    }
+
+    $res->data_seek(0);
+    $row = $res->fetch_assoc();
+
+    $finaljson = json_encode($row);
+    echo $finaljson;
   }
 
   function getAllCustomerRecords() {
@@ -42,17 +75,10 @@
       $res->data_seek($row_no);
       $row = $res->fetch_assoc();
 
-      $first_name = $row['first_name'];
-      $last_name = $row['last_name'];
-      $so_sec_num = $row['social_security_num'];
-      $full_name = $first_name . ' ' . $last_name;
-
-      // echo json_encode($row);
       $customerArr[] = json_encode($row);
     }
 
     $finaljson = json_encode($customerArr);
-    $finaljson = stripslashes($finaljson);
     echo $finaljson;
   }
 ?>

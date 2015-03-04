@@ -101,11 +101,10 @@
   <h1>View Table Data Section: </h1>
   <div>
     <h2>Customer Info Section:</h2>
-    <form action="http://www.google" method="GET">
+    <form onsubmit="return findCustInfo();">
       <fieldset>
         <legend>Please select a customer you want to view info on:</legend>
         <select name="viewCustSelect">
-          <option value="FirstnameLastname">SampleFirstName SampleLastName</option> 
         </select><br>
         <input type="submit" value="View Customer">
       </fieldset>
