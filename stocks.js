@@ -12,23 +12,46 @@ function findCustInfo() {
     }
   };
 
-  callStockPhp('getOneCustInfo', viewOneCustFunc);
+  // Create object that holds the SQL query
+  var selectedOption = document.getElementsByName('viewCustSelect');
+  selectedOption = selectedOption[0];
+  var custParams = {
+    ssNum: selectedOption.options[selectedOption.selectedIndex].value
+  };
+
+  callStockPhp('getOneCustInfo', viewOneCustFunc, custParams);
 
   return false;
 }
 
-function callStockPhp(phpFuncName, returnFunc) {
+// Here optional parameters is supposed to be an array
+function callStockPhp(phpFuncName, returnFunc, optionalParams) {
+  if (typeof(optionalParams) === 'undefined') {
+    optionalParams = '';
+  }
+
   var request = new XMLHttpRequest();
   var url = 'stocks.php?' + phpFuncName + '=true';
+
+  // Need to find a way to iterate through the properties of the JS
+  if (optionalParams.length !== 0) {
+    for (var property in optionalParams) {
+      if (optionalParams.hasOwnProperty(property)) {
+        url += '&' + property + '=' + optionalParams[property];
+      }
+    }
+  }
+
+
   if (!request){
     return false;
   }
- 
+
   request.onreadystatechange = returnFunc(request);
   request.open('GET', url, true);
   request.send(null);
   return request;
-} 
+}
 
 function populateComboBoxes() {
   popAllCustomerComboBoxes();
@@ -49,7 +72,7 @@ function popAllCustomerComboBoxes() {
         for(i = 0; i < objArray.length; i++) {
           currentItem = JSON.parse(objArray[i]);
           fullName = currentItem.first_name + ' ' + currentItem.last_name;
-          container.options[container.options.length] = new Option(fullName, currentItem.social_security_num); 
+          container.options[container.options.length] = new Option(fullName, currentItem.social_security_num);
         }
       }
     }
