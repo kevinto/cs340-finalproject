@@ -4,10 +4,14 @@ function findCustInfo() {
   var viewOneCustFunc = function(request){
     return function() {
       if(request.readyState == 4) {
-        var container = document.getElementById('custView');
+        var containerId = 'custView';
+        var container = document.getElementById(containerId);
 
         var resultObj = JSON.parse(request.responseText);
-        container.innerText = resultObj.first_name + ' ' + resultObj.last_name + ' ' + resultObj.social_security_num;
+        // container.innerText = resultObj.first_name + ' ' + resultObj.last_name + ' ' + resultObj.social_security_num;
+        var tableParamObj = new Array();
+        tableParamObj.push(resultObj);
+        addTable(containerId, tableParamObj);
       }
     }
   };
@@ -22,6 +26,32 @@ function findCustInfo() {
   callStockPhp('getOneCustInfo', viewOneCustFunc, custParams);
 
   return false;
+}
+
+function addTable(targetDiv, dispObjArray) {
+      
+  var myTableDiv = document.getElementById(targetDiv);
+    
+  var table = document.createElement('table');
+  table.border='1';
+  
+  for (var i = 0; i < dispObjArray.length; i++){
+    // Create the headers
+
+   // Create the actual rows 
+
+    var tr = document.createElement('tr');
+    table.appendChild(tr);
+
+    for (var j=0; j<4; j++){
+       var td = document.createElement('td');
+       td.width='75';
+       td.appendChild(document.createTextNode("Cell " + i + "," + j));
+       tr.appendChild(td);
+    }
+  }
+
+  myTableDiv.appendChild(table);
 }
 
 // Here optional parameters is supposed to be an array

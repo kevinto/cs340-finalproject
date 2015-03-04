@@ -15,7 +15,7 @@
       getAllCustomerRecords();
     }
 
-    if (isset($_GET['getOneCustInfo'])) {
+    if (isset($_GET['getOneCustInfo']) && isset($_GET['ssNum'])) {
       getSingleCustomerInfo();
     }
   }
@@ -24,9 +24,14 @@
     global $mysqli;
 
     // Prepare the select statment
-    if (!($stmt = $mysqli->prepare("SELECT first_name, last_name, social_security_num FROM customer;"))) {
+    if (!($stmt = $mysqli->prepare("SELECT first_name, last_name, social_security_num FROM customer WHERE social_security_num=?;"))) {
       echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
       die();
+    }
+
+    $ssNum = $_GET['ssNum'];
+    if (!$stmt->bind_param("i", $ssNum)) {
+          echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
     }
 
     if (!$stmt->execute()) {
