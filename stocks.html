@@ -7,84 +7,84 @@
 </head>
 <body onload="populateComboBoxes();">
   <h1>Database Insert Section:</h1>
-  <form action="http://www.google" method="GET">
+  <form onsubmit="return insertNewCust();">
     <fieldset>
         <legend>Add a customer:</legend>
         <label>First Name: </label>
-        <input type="text" name="firstName"><br>
+        <input type="text" id="firstNameInsert"><br>
         <label>Last Name: </label>
-        <input type="text" name="lastName"><br>
+        <input type="text" id="lastNameInsert"><br>
         <label>Social Security Number: </label>
-        <input type="number" name="soSecNum"><br>
+        <input type="number" id="soSecNumInsert"><br>
         <input type="submit" value="Add Customer">
     </fieldset>
   </form>
-  <form action="http://www.google" method="GET">
+  <form onsubmit="return insertNewStock();">
     <fieldset>
       <legend>Add a stock:</legend>
       <label>Stock Name: </label>
-      <input type="text" name="stockName"><br>
+      <input type="text" id="stockNameInsert"><br>
       <label>Stock Symbol: </label>
-      <input type="text" name="stockSymbol"><br>
+      <input type="text" id="stockSymbolInsert"><br>
       <label>Stock Price: </label>
-      <input type="number" name="stockPrice"><br>
+      <input type="number" id="stockPriceInsert"><br>
       <input type="submit" value="Add Stock">
     </fieldset>
   </form>
-  <form action="http://www.google" method="GET">
+  <form onsubmit="return insertNewFee();">
     <fieldset>
       <legend>Add a fee for a customer:</legend>
       <label>Fee Name: </label>
-      <input type="text" name="feeName"><br>
+      <input type="text" id="feeNameInsert"><br>
       <label>Fee Amount: </label>
-      <input type="number" name="feeAmt"><br>
+      <input type="number" id="feeAmtInsert"><br>
       <label>Select customer to associate a fee to: </label>
-      <select name="cusFeeSelect">
+      <select name="addFeeCustSelect">
       </select><br>
       <input type="submit" value="Add Fee for Customer">
     </fieldset>
   </form>
-  <form action="http://www.google" method="GET">
+  <form onsubmit="return insertNewBankAcct();">
     <fieldset>
       <legend>Add a bank account for a customer:</legend>
       <label>Bank Name: </label>
-      <input type="text" name="bankName"><br>
+      <input type="text" id="bankNameInsert"><br>
       <label>Account Number: </label>
-      <input type="number" name="bankAcctNum"><br>
+      <input type="number" id="bankAcctNumInsert"><br>
       <label>Select customer to associate the bank account to: </label>
-      <select name="cusBankSelect">
+      <select name="addCustBankSelect">
       </select><br>
       <input type="submit" value="Add Bank Account for Customer">
     </fieldset>
   </form>
-  <form action="http://www.google" method="GET">
+  <form onsubmit="return insertNewStockOrder();">
     <fieldset>
       <legend>Add a stock order for a customer:</legend>
       <label>Order status: </label>
-      <select name="orderStatus">
+      <select name="orderStatusSelectInsert">
         <option value="open">Open</option>  
         <option value="executed">Executed</option>  
         <option value="closed">Closed</option>  
       </select><br>
       <label>Order type: </label>
-      <select name="orderType">
+      <select name="orderTypeSelectInsert">
         <option value="buy">Buy</option>  
         <option value="sell">Sell</option>  
       </select><br>
       <label>Quantity Ordered: </label>
-      <input type="number" name="qtyOrd"><br>
+      <input type="number" id="qtyOrdInsert"><br>
       <label>Order Start Date: </label>
-      <input type="date" name="ordStartDate"><br>
+      <input type="date" id="ordStartDateInsert"><br>
       <label>Select the stock symbol that is associated to the stock order: </label>
-      <select name="ordStockSelect">
+      <select name="ordStockSelectInsert">
       </select><br>
       <label>Select the customer that is associated to the stock order: </label>
-      <select name="ordCustSelect">
+      <select name="ordCustSelectInsert">
       </select><br>
       <input type="submit" value="Add a Stock Order for a Customer">
     </fieldset>
   </form>
-    <form action="http://www.google" method="GET">
+  <form action="http://www.google" method="GET">
     <fieldset>
       <legend>Add stock ownership for a customer:</legend>
       <label>Select the stock symbol that will be associated with the customer: </label>
