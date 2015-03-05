@@ -268,6 +268,7 @@ function popAllStockComboBoxes() {
       if(request.readyState == 4) {
         var stkContainers = new Array();
         stkContainers.push(document.getElementsByName('ordStockSelectInsert'));
+        stkContainers.push(document.getElementsByName('stkForStockOwnInsert'));
 
         for (var i = 0; i < stkContainers.length; i++) {
           var objArray = JSON.parse(request.responseText);
@@ -296,6 +297,7 @@ function popAllCustomerComboBoxes() {
         custContainers.push(document.getElementsByName('addFeeCustSelect'));
         custContainers.push(document.getElementsByName('addCustBankSelect'));
         custContainers.push(document.getElementsByName('ordCustSelectInsert'));
+        custContainers.push(document.getElementsByName('custForStockOwnInsert'));
 
         for (var i = 0; i < custContainers.length; i++) {
           var objArray = JSON.parse(request.responseText);
