@@ -122,17 +122,17 @@
   function insertNewStockOrder($ordStatus, $ordType, $qtyOrdered, $ordStartDate, $stkSym, $custSsId) {
     global $mysqli;
 
-    $custId = getCustomerDbKey($custSsId);
-    $stkId = getStockDbKey($stkSym);
-
     // Prepare the insert statment
-    if (!($stmt = $mysqli->prepare("INSERT INTO stock_orders(order_status, order_type, qty_ordered, order_start_date, cust_id, stock_id) VALUES (?, ?, ?, ?, ?, ?)"))) {
+    if (!($stmt = $mysqli->prepare("INSERT INTO stock_orders(order_status, order_type, qty_ordered, order_start_date, cust_id, stock_id) 
+      VALUES (?, ?, ?, ?, 
+        (SELECT id FROM customer WHERE social_security_num=?), 
+        (SELECT id FROM stocks WHERE stock_symbol=?))"))) {
       echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
       die();
     }
 
     // Add values to SQL insert statement
-    if (!$stmt->bind_param("ssisii", $ordStatus, $ordType, $qtyOrdered, $ordStartDate, $custId, $stkId)) {
+    if (!$stmt->bind_param("ssisis", $ordStatus, $ordType, $qtyOrdered, $ordStartDate, $custSsId, $stkSym)) {
       echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
       die();
     }
