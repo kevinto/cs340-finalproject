@@ -12,11 +12,13 @@
 
   if ($_SERVER['REQUEST_METHOD'] === 'GET' && count($_GET) > 0) {
 
+    // Get JSON object of all customers
     if (isset($_GET['getAllCustInfo'])) {
       getAllCustomerRecords();
       die();
     }
 
+    // Get JSON object of all stock symbols
     if (isset($_GET['getAllStockSym'])) {
       getAllStockSymbols();
       die();
@@ -116,6 +118,47 @@
         echo 'EmptyParams';
         die();
       }
+    }
+
+    // Insert one new customer owned stock 
+    if (isset($_GET['insertNewStockOwn']) && isset($_GET['custSsNum']) 
+      && isset($_GET['stkSym']) && isset($_GET['qtyOwned'])) {
+
+      // Check if there are any empty parameters
+      if ($_GET['custSsNum'] !== '' && $_GET['stkSym'] !== '' 
+        && $_GET['qtyOwned'] !== '') {
+
+        insertNewStockOwn($_GET['custSsNum'], $_GET['stkSym'], $_GET['qtyOwned']);
+        die();
+      }
+      else {
+        echo 'EmptyParams';
+        die();
+      }
+    }
+  }
+
+  function insertNewStockOwn($custSsNum, $stkSym, $qtyOwned) {
+    global $mysqli;
+
+    // Prepare the insert statment
+    if (!($stmt = $mysqli->prepare("INSERT INTO has_stocks(cust_id, stock_id, amount) 
+      VALUES ((SELECT id FROM customer WHERE social_security_num=? limit 1), 
+        (SELECT id FROM stocks WHERE stock_symbol=? limit 1), ?)"))) {
+      echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+      die();
+    }
+
+    // Add values to SQL insert statement
+    if (!$stmt->bind_param("iii", $custSsNum, $stkSym, $qtyOwned)) {
+      echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+      die();
+    }
+
+    // Execute sql statement
+    if (!$stmt->execute()) {
+      echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+      die();
     }
   }
 

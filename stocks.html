@@ -84,7 +84,7 @@
       <input type="submit" value="Add a Stock Order for a Customer">
     </fieldset>
   </form>
-  <form action="http://www.google" method="GET">
+  <form onsubmit="return insertNewStockOwn();">
     <fieldset>
       <legend>Add stock ownership for a customer:</legend>
       <label>Select the stock symbol that will be associated with the customer: </label>
@@ -94,7 +94,7 @@
       <select name="stkForStockOwnInsert">
       </select><br>
       <label>Quantity of stock the customer owns: </label>
-      <input type="number" name="qtyOwned"><br> 
+      <input type="number" id="qtyOwnedInsert"><br> 
       <input type="submit" value="Add a Stock Association for a Customer">
     </fieldset>
   </form>

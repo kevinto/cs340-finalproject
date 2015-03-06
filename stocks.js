@@ -1,3 +1,42 @@
+// Associates a customer with how much stock they own
+function insertNewStockOwn() {
+  // Get form values
+  var custSsNum = document.getElementsByName('custForStockOwnInsert');
+  custSsNum = custSsNum[0].options[custSsNum[0].selectedIndex].value; 
+
+  var stkSym = document.getElementsByName('stkForStockOwnInsert');
+  stkSym = stkSym[0].options[stkSym[0].selectedIndex].value; 
+
+  var qtyOwned = document.getElementById('qtyOwnedInsert').value;
+
+  // Create Return function
+  var insertNewStkOwnFunc = function(request){
+    return function() {
+      if(request.readyState == 4) {
+        if (request.responseText === 'EmptyParams') {
+          alert('One of the values you entered for a new customer owned stock insertion was empty. Please fill out the required fields and resubmit.');
+        }
+        else {
+          alert('Customer Owned Stock Add Successful');
+        }
+
+        location.reload();
+      }
+    }
+  };
+
+  // Create Php parameters
+  var stkOwnedParams = {
+    custSsNum: custSsNum,
+    stkSym: stkSym,
+    qtyOwned: qtyOwned 
+  };
+
+  callStockPhp('insertNewStockOwn', insertNewStkOwnFunc, stkOwnedParams);
+
+  return false;
+}
+
 // Inserts a new stock order into the database
 function insertNewStockOrder() {
   // Get form values
