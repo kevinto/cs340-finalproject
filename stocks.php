@@ -24,9 +24,33 @@
       die();
     }
 
+    // Get JSON object of all stock names 
+    if (isset($_GET['getAllStockNames'])) {
+      getAllStockNames();
+      die();
+    }
+
     // Get view of one customer
     if (isset($_GET['getOneCustInfo']) && isset($_GET['ssNum'])) {
       getSingleCustomerInfo($_GET['ssNum']);
+      die();
+    }
+
+    // Get view of one stock 
+    if (isset($_GET['getOneStkInfo']) && isset($_GET['stkSym'])) {
+      getOneStkInfo($_GET['stkSym']);
+      die();
+    }
+
+    // Get view of all fees for one customer 
+    if (isset($_GET['getCustFeeInfo']) && isset($_GET['custSsNum'])) {
+      getCustFeeInfo($_GET['custSsNum']);
+      die();
+    }
+
+    // Get view of all fees for one customer 
+    if (isset($_GET['getCustStkOwnInfo']) && isset($_GET['custSsNum'])) {
+      getCustStkOwnInfo($_GET['custSsNum']);
       die();
     }
 
@@ -141,16 +165,18 @@
   function insertNewStockOwn($custSsNum, $stkSym, $qtyOwned) {
     global $mysqli;
 
+    echo var_dump($custSsNum, $stkSym, $qtyOwned);
+
     // Prepare the insert statment
     if (!($stmt = $mysqli->prepare("INSERT INTO has_stocks(cust_id, stock_id, amount) 
       VALUES ((SELECT id FROM customer WHERE social_security_num=? limit 1), 
-        (SELECT id FROM stocks WHERE stock_symbol=? limit 1), ?)"))) {
+        (SELECT id FROM stocks WHERE stock_symbol=? limit 1), ?);"))) {
       echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
       die();
     }
 
     // Add values to SQL insert statement
-    if (!$stmt->bind_param("iii", $custSsNum, $stkSym, $qtyOwned)) {
+    if (!$stmt->bind_param("isi", $custSsNum, $stkSym, $qtyOwned)) {
       echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
       die();
     }
@@ -168,8 +194,8 @@
     // Prepare the insert statment
     if (!($stmt = $mysqli->prepare("INSERT INTO stock_orders(order_status, order_type, qty_ordered, order_start_date, cust_id, stock_id) 
       VALUES (?, ?, ?, ?, 
-        (SELECT id FROM customer WHERE social_security_num=?), 
-        (SELECT id FROM stocks WHERE stock_symbol=?))"))) {
+        (SELECT id FROM customer WHERE social_security_num=? limit 1), 
+        (SELECT id FROM stocks WHERE stock_symbol=? limit 1))"))) {
       echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
       die();
     }
@@ -344,6 +370,39 @@
     echo $finaljson;
   }
 
+  function getOneStkInfo($stkSym) {
+    global $mysqli;
+
+    // Prepare the select statment
+    if (!($stmt = $mysqli->prepare("SELECT stock_symbol, stock_name, stock_price FROM stocks WHERE stock_symbol=?;"))) {
+      echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+      die();
+    }
+
+    if (!$stmt->bind_param("s", $stkSym)) {
+          echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+    }
+
+    if (!$stmt->execute()) {
+      echo "Execute failed: (" . $mysqli->errno . ") " . $mysqli->error;
+    }
+
+    if (!($res = $stmt->get_result())) {
+      echo "Getting result set failed: (" . $stmt->errno . ") " . $stmt->error;
+    }
+
+    // No results were returned, exit.
+    if ($res->num_rows === 0) {
+      return;
+    }
+
+    $res->data_seek(0);
+    $row = $res->fetch_assoc();
+
+    $finaljson = json_encode($row);
+    echo $finaljson;
+  }
+
   function getAllCustomerRecords() {
     global $mysqli;
 
@@ -410,6 +469,39 @@
     echo $finaljson;
   }
 
+  function getAllStockNames() {
+    global $mysqli;
+
+    // Prepare the select statment
+    if (!($stmt = $mysqli->prepare("SELECT stock_symbol, stock_name FROM stocks;"))) {
+      echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+      die();
+    }
+
+    if (!$stmt->execute()) {
+      echo "Execute failed: (" . $mysqli->errno . ") " . $mysqli->error;
+    }
+
+    if (!($res = $stmt->get_result())) {
+      echo "Getting result set failed: (" . $stmt->errno . ") " . $stmt->error;
+    }
+
+    // No results were returned, exit.
+    if ($res->num_rows === 0) {
+      return;
+    }
+
+    for($row_no = ($res->num_rows - 1); $row_no >= 0; $row_no--) {
+      $res->data_seek($row_no);
+      $row = $res->fetch_assoc();
+
+      $stocksArr[] = json_encode($row);
+    }
+
+    $finaljson = json_encode($stocksArr);
+    echo $finaljson;   
+  }
+
   function getStockDbKey($stkSym) {
     global $mysqli;
 
@@ -440,5 +532,83 @@
     $row = $res->fetch_assoc();
 
     return $row['id'];
+  }
+
+  function getCustFeeInfo($custSsId) {
+    global $mysqli;
+
+    // Prepare the select statment
+    if (!($stmt = $mysqli->prepare("SELECT fee_name, fee_amount FROM fees WHERE cust_id in 
+      (SELECT id from customer where social_security_num=?);"))) {
+      echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+      die();
+    }
+
+    if (!$stmt->bind_param("i", $custSsId)) {
+          echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+    }
+
+    if (!$stmt->execute()) {
+      echo "Execute failed: (" . $mysqli->errno . ") " . $mysqli->error;
+    }
+
+    if (!($res = $stmt->get_result())) {
+      echo "Getting result set failed: (" . $stmt->errno . ") " . $stmt->error;
+    }
+
+    // No results were returned, exit.
+    if ($res->num_rows === 0) {
+      return;
+    }
+
+    for($row_no = ($res->num_rows - 1); $row_no >= 0; $row_no--) {
+      $res->data_seek($row_no);
+      $row = $res->fetch_assoc();
+
+      $stocksArr[] = json_encode($row);
+    }
+
+    $finaljson = json_encode($stocksArr);
+    echo $finaljson; 
+  }
+
+  function getCustStkOwnInfo($custSsId) {
+    global $mysqli;
+
+    // Prepare the select statment
+    if (!($stmt = $mysqli->prepare("SELECT s.stock_name, s.stock_symbol, s.stock_price, hs.amount as amount_stock_owned 
+      FROM customer c INNER JOIN has_stocks hs ON c.id = hs.cust_id 
+      INNER JOIN stocks s ON hs.stock_id = s.id 
+      WHERE c.social_security_num = ?;"))) {
+      echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+      die();
+    }
+
+    if (!$stmt->bind_param("i", $custSsId)) {
+          echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+    }
+
+    if (!$stmt->execute()) {
+      echo "Execute failed: (" . $mysqli->errno . ") " . $mysqli->error;
+    }
+
+    if (!($res = $stmt->get_result())) {
+      echo "Getting result set failed: (" . $stmt->errno . ") " . $stmt->error;
+    }
+
+    // No results were returned, exit.
+    if ($res->num_rows === 0) {
+      return;
+    }
+
+    for($row_no = ($res->num_rows - 1); $row_no >= 0; $row_no--) {
+      $res->data_seek($row_no);
+      $row = $res->fetch_assoc();
+
+      $stocksArr[] = json_encode($row);
+    }
+
+    $finaljson = json_encode($stocksArr);
+    echo $finaljson;  
   }
 ?>

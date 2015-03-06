@@ -1,3 +1,316 @@
+
+// GENERIC HELPER FUNCTIONS
+function addTable(targetDiv, dispObjArray) {
+      
+  var myTableDiv = document.getElementById(targetDiv);
+    
+  var table = document.createElement('table');
+  table.border='1';
+  
+  var headersAlreadyCreated = false
+  for (var i = 0; i < dispObjArray.length; i++){
+    // Create the headers
+    if (!headersAlreadyCreated) {
+      var tr = document.createElement('tr');
+      table.appendChild(tr);
+      for (var property in dispObjArray[i]) {
+        if (dispObjArray[i].hasOwnProperty(property)) {
+
+          var th = document.createElement('th');
+          th.appendChild(document.createTextNode(property));
+          tr.appendChild(th);
+        }
+      }
+
+      headersAlreadyCreated = true;
+    }
+    
+    // Create the rows for the data
+    tr = document.createElement('tr');
+    table.appendChild(tr);
+    for (var property in dispObjArray[i]) {
+      if (dispObjArray[i].hasOwnProperty(property)) {
+
+        var td = document.createElement('td');
+        td.appendChild(document.createTextNode(dispObjArray[i][property]));
+        tr.appendChild(td);
+      }
+    }
+  }
+
+  myTableDiv.appendChild(table);
+}
+
+// Here optional parameters is supposed to be an array
+function callStockPhp(phpFuncName, returnFunc, optionalParams) {
+  if (typeof(optionalParams) === 'undefined') {
+    optionalParams = '';
+  }
+
+  var request = new XMLHttpRequest();
+  var url = 'stocks.php?' + phpFuncName + '=true';
+
+  // Need to find a way to iterate through the properties of the JS
+  if (optionalParams.length !== 0) {
+    for (var property in optionalParams) {
+      if (optionalParams.hasOwnProperty(property)) {
+        url += '&' + property + '=' + optionalParams[property];
+      }
+    }
+  }
+
+  if (!request){
+    return false;
+  }
+
+  request.onreadystatechange = returnFunc(request);
+  request.open('GET', url, true);
+  request.send(null);
+  return request;
+}
+
+function populateComboBoxes() {
+  popAllCustomerComboBoxes();
+  popAllStockSymbolComboBoxes();
+  popAllStockNameComboBoxes();
+}
+
+// VIEW DATA FUNCTIONS: ----------------------------------
+
+// Populate all stock combo boxes 
+function popAllStockNameComboBoxes() {
+  var popStkNameComBoFunc = function(request){
+    return function() {
+      if(request.readyState == 4) {
+        var stkContainers = new Array();
+        stkContainers.push(document.getElementsByName('viewStockNameSelect'));
+
+        for (var i = 0; i < stkContainers.length; i++) {
+          var objArray = JSON.parse(request.responseText);
+          var currentItem;
+          for(var j = 0; j < objArray.length; j++) {
+            currentItem = JSON.parse(objArray[j]);
+            stkSym = currentItem.stock_symbol;
+            stkName = currentItem.stock_name;
+
+            // stkContainers is an array of arrays of the select element 
+            stkContainers[i][0].options[stkContainers[i][0].options.length] = new Option(stkName, stkSym);
+          }
+        }
+      }
+    }
+  };
+  callStockPhp('getAllStockNames', popStkNameComBoFunc);
+}
+
+// Populate all stock combo boxes 
+function popAllStockSymbolComboBoxes() {
+  var popCustComBoFunc = function(request){
+    return function() {
+      if(request.readyState == 4) {
+        var stkContainers = new Array();
+        stkContainers.push(document.getElementsByName('ordStockSelectInsert'));
+        stkContainers.push(document.getElementsByName('stkForStockOwnInsert'));
+
+        for (var i = 0; i < stkContainers.length; i++) {
+          var objArray = JSON.parse(request.responseText);
+          var currentItem;
+          for(var j = 0; j < objArray.length; j++) {
+            currentItem = JSON.parse(objArray[j]);
+            stkSym = currentItem.stock_symbol;
+
+            // stkContainers is an array of arrays of the select element 
+            stkContainers[i][0].options[stkContainers[i][0].options.length] = new Option(stkSym, stkSym);
+          }
+        }
+      }
+    }
+  };
+  callStockPhp('getAllStockSym', popCustComBoFunc);
+}
+
+// Populate all customer combo boxes
+function popAllCustomerComboBoxes() {
+  var popCustComBoFunc = function(request){
+    return function() {
+      if(request.readyState == 4) {
+        var custContainers = new Array();
+        custContainers.push(document.getElementsByName('viewCustSelect'));
+        custContainers.push(document.getElementsByName('addFeeCustSelect'));
+        custContainers.push(document.getElementsByName('addCustBankSelect'));
+        custContainers.push(document.getElementsByName('ordCustSelectInsert'));
+        custContainers.push(document.getElementsByName('custForStockOwnInsert'));
+        custContainers.push(document.getElementsByName('viewCustFeeSelect'));
+        custContainers.push(document.getElementsByName('viewCustStockOwnSelect'));
+
+        for (var i = 0; i < custContainers.length; i++) {
+          var objArray = JSON.parse(request.responseText);
+          var currentItem;
+          var fullName;
+          for(var j = 0; j < objArray.length; j++) {
+            currentItem = JSON.parse(objArray[j]);
+            fullName = currentItem.first_name + ' ' + currentItem.last_name;
+
+            // custContainers is an array of arrays of the select element 
+            custContainers[i][0].options[custContainers[i][0].options.length] = new Option(fullName, currentItem.social_security_num);
+          }
+        }
+      }
+    }
+  };
+  callStockPhp('getAllCustInfo', popCustComBoFunc);
+}
+
+function findStkOwnershipInfo() {
+
+  // Define Async return function
+  var viewCustStkOwnFunc = function(request){
+    return function() {
+      if(request.readyState == 4) {
+        var containerId = 'custOwnedStocksView';
+        var container = document.getElementById(containerId);
+
+        // Returns an array
+        var resultObj = JSON.parse(request.responseText);
+
+        // Clear out empty message 
+        container.innerText = '';
+
+        // Work in progress
+        // if (resultObj.length === 0) {
+        //   container.innerText = 'No data returned';
+        //   return;
+        // }
+
+        var tableParamObj = new Array();
+        for (var i = 0; i < resultObj.length; i++) {
+          tableParamObj.push(JSON.parse(resultObj[i]));
+        }
+
+        addTable(containerId, tableParamObj);
+      }
+    }
+  };
+
+  // Create object that holds the SQL query
+  var selectedOption = document.getElementsByName('viewCustStockOwnSelect');
+  selectedOption = selectedOption[0];
+  var ownParams = {
+    custSsNum: selectedOption.options[selectedOption.selectedIndex].value
+  };
+
+  callStockPhp('getCustStkOwnInfo', viewCustStkOwnFunc, ownParams);
+
+  return false; 
+}
+
+function findFeeInfo() {
+
+  // Define Async return function
+  var viewCustFeesFunc = function(request){
+    return function() {
+      if(request.readyState == 4) {
+        var containerId = 'custFeeView';
+        var container = document.getElementById(containerId);
+
+        // Returns an array
+        var resultObj = JSON.parse(request.responseText);
+
+        // Clear out empty message 
+        container.innerText = '';
+
+        var tableParamObj = new Array();
+        for (var i = 0; i < resultObj.length; i++) {
+          tableParamObj.push(JSON.parse(resultObj[i]));
+        }
+
+        addTable(containerId, tableParamObj);
+      }
+    }
+  };
+
+  // Create object that holds the SQL query
+  var selectedOption = document.getElementsByName('viewCustFeeSelect');
+  selectedOption = selectedOption[0];
+  var feeParams = {
+    custSsNum: selectedOption.options[selectedOption.selectedIndex].value
+  };
+
+  callStockPhp('getCustFeeInfo', viewCustFeesFunc, feeParams);
+
+  return false; 
+}
+
+// Displays the individual stock info 
+function findStkInfo() {
+
+  // Define Async return function
+  var viewOneStkFunc = function(request){
+    return function() {
+      if(request.readyState == 4) {
+        var containerId = 'stocksView';
+        var container = document.getElementById(containerId);
+
+        var resultObj = JSON.parse(request.responseText);
+
+        // Clear out empty message 
+        container.innerText = '';
+
+        var tableParamObj = new Array();
+        tableParamObj.push(resultObj);
+        addTable(containerId, tableParamObj);
+      }
+    }
+  };
+
+  // Create object that holds the SQL query
+  var selectedOption = document.getElementsByName('viewStockNameSelect');
+  selectedOption = selectedOption[0];
+  var stkParams = {
+    stkSym: selectedOption.options[selectedOption.selectedIndex].value
+  };
+
+  callStockPhp('getOneStkInfo', viewOneStkFunc, stkParams);
+
+  return false;
+}
+
+// Displays the individual customer info
+function findCustInfo() {
+
+  // Define Async return function
+  var viewOneCustFunc = function(request){
+    return function() {
+      if(request.readyState == 4) {
+        var containerId = 'custView';
+        var container = document.getElementById(containerId);
+
+        var resultObj = JSON.parse(request.responseText);
+
+        // Clear out empty message 
+        container.innerText = '';
+
+        var tableParamObj = new Array();
+        tableParamObj.push(resultObj);
+        addTable(containerId, tableParamObj);
+      }
+    }
+  };
+
+  // Create object that holds the SQL query
+  var selectedOption = document.getElementsByName('viewCustSelect');
+  selectedOption = selectedOption[0];
+  var custParams = {
+    ssNum: selectedOption.options[selectedOption.selectedIndex].value
+  };
+
+  callStockPhp('getOneCustInfo', viewOneCustFunc, custParams);
+
+  return false;
+}
+
+// INSERT DATA FUNCTIONS ----------------------------------
+
 // Associates a customer with how much stock they own
 function insertNewStockOwn() {
   // Get form values
@@ -224,168 +537,6 @@ function insertNewCust() {
   };
 
   callStockPhp('insertNewCust', insertNewCustFunc, custParams);
-
-  return false;
-}
-
-// GENERIC HELPER FUNCTIONS
-function addTable(targetDiv, dispObjArray) {
-      
-  var myTableDiv = document.getElementById(targetDiv);
-    
-  var table = document.createElement('table');
-  table.border='1';
-  
-  for (var i = 0; i < dispObjArray.length; i++){
-    // Create the headers
-    var tr = document.createElement('tr');
-    table.appendChild(tr);
-    for (var property in dispObjArray[i]) {
-      if (dispObjArray[i].hasOwnProperty(property)) {
-
-        var th = document.createElement('th');
-        th.appendChild(document.createTextNode(property));
-        tr.appendChild(th);
-      }
-    }
-
-    // Create the rows for the data
-    tr = document.createElement('tr');
-    table.appendChild(tr);
-    for (var property in dispObjArray[i]) {
-      if (dispObjArray[i].hasOwnProperty(property)) {
-
-        var td = document.createElement('td');
-        td.appendChild(document.createTextNode(dispObjArray[i][property]));
-        tr.appendChild(td);
-      }
-    }
-  }
-
-  myTableDiv.appendChild(table);
-}
-
-// Here optional parameters is supposed to be an array
-function callStockPhp(phpFuncName, returnFunc, optionalParams) {
-  if (typeof(optionalParams) === 'undefined') {
-    optionalParams = '';
-  }
-
-  var request = new XMLHttpRequest();
-  var url = 'stocks.php?' + phpFuncName + '=true';
-
-  // Need to find a way to iterate through the properties of the JS
-  if (optionalParams.length !== 0) {
-    for (var property in optionalParams) {
-      if (optionalParams.hasOwnProperty(property)) {
-        url += '&' + property + '=' + optionalParams[property];
-      }
-    }
-  }
-
-  if (!request){
-    return false;
-  }
-
-  request.onreadystatechange = returnFunc(request);
-  request.open('GET', url, true);
-  request.send(null);
-  return request;
-}
-
-function populateComboBoxes() {
-  popAllCustomerComboBoxes();
-  popAllStockComboBoxes();
-}
-
-// VIEW DATA FUNCTIONS:
-
-// Populate all stock combo boxes 
-function popAllStockComboBoxes() {
-  var popCustComBoFunc = function(request){
-    return function() {
-      if(request.readyState == 4) {
-        var stkContainers = new Array();
-        stkContainers.push(document.getElementsByName('ordStockSelectInsert'));
-        stkContainers.push(document.getElementsByName('stkForStockOwnInsert'));
-
-        for (var i = 0; i < stkContainers.length; i++) {
-          var objArray = JSON.parse(request.responseText);
-          var currentItem;
-          for(var j = 0; j < objArray.length; j++) {
-            currentItem = JSON.parse(objArray[j]);
-            stkSym = currentItem.stock_symbol;
-
-            // stkContainers is an array of arrays of the select element 
-            stkContainers[i][0].options[stkContainers[i][0].options.length] = new Option(stkSym, stkSym);
-          }
-        }
-      }
-    }
-  };
-  callStockPhp('getAllStockSym', popCustComBoFunc);
-}
-
-// Populate all customer combo boxes
-function popAllCustomerComboBoxes() {
-  var popCustComBoFunc = function(request){
-    return function() {
-      if(request.readyState == 4) {
-        var custContainers = new Array();
-        custContainers.push(document.getElementsByName('viewCustSelect'));
-        custContainers.push(document.getElementsByName('addFeeCustSelect'));
-        custContainers.push(document.getElementsByName('addCustBankSelect'));
-        custContainers.push(document.getElementsByName('ordCustSelectInsert'));
-        custContainers.push(document.getElementsByName('custForStockOwnInsert'));
-
-        for (var i = 0; i < custContainers.length; i++) {
-          var objArray = JSON.parse(request.responseText);
-          var currentItem;
-          var fullName;
-          for(var j = 0; j < objArray.length; j++) {
-            currentItem = JSON.parse(objArray[j]);
-            fullName = currentItem.first_name + ' ' + currentItem.last_name;
-
-            // custContainers is an array of arrays of the select element 
-            custContainers[i][0].options[custContainers[i][0].options.length] = new Option(fullName, currentItem.social_security_num);
-          }
-        }
-      }
-    }
-  };
-  callStockPhp('getAllCustInfo', popCustComBoFunc);
-}
-
-// Displays the individual customer information
-function findCustInfo() {
-
-  // Define Async return function
-  var viewOneCustFunc = function(request){
-    return function() {
-      if(request.readyState == 4) {
-        var containerId = 'custView';
-        var container = document.getElementById(containerId);
-
-        var resultObj = JSON.parse(request.responseText);
-
-        // Clear out empty message 
-        container.innerText = '';
-
-        var tableParamObj = new Array();
-        tableParamObj.push(resultObj);
-        addTable(containerId, tableParamObj);
-      }
-    }
-  };
-
-  // Create object that holds the SQL query
-  var selectedOption = document.getElementsByName('viewCustSelect');
-  selectedOption = selectedOption[0];
-  var custParams = {
-    ssNum: selectedOption.options[selectedOption.selectedIndex].value
-  };
-
-  callStockPhp('getOneCustInfo', viewOneCustFunc, custParams);
 
   return false;
 }

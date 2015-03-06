@@ -116,11 +116,10 @@
   </div>
   <div>
     <h2>Stocks Info Section:</h2>
-    <form action="http://www.google" method="GET">
+    <form onsubmit="return findStkInfo();">
       <fieldset>
         <legend>Please select a stock you want to view info on:</legend>
-        <select name="viewStockSelect">
-          <option value="SampleStockName">SampleStockName</option> 
+        <select name="viewStockNameSelect">
         </select><br>
         <input type="submit" value="View Stock">
       </fieldset>
@@ -132,11 +131,10 @@
   </div> 
   <div>
     <h2>Fee Info Section:</h2>
-    <form action="http://www.google" method="GET">
+    <form onsubmit="return findFeeInfo();">
       <fieldset>
         <legend>Please select a customer to view fee info on:</legend>
         <select name="viewCustFeeSelect">
-          <option value="FirstnameLastname">SampleFirstName SampleLastName</option>  
         </select><br>
         <input type="submit" value="View Fees">
       </fieldset>
@@ -148,11 +146,10 @@
   </div>
   <div>
     <h2>Stock Ownership Info Section:</h2>
-    <form action="http://www.google" method="GET">
+    <form onsubmit="return findStkOwnershipInfo();">
       <fieldset>
         <legend>Please select a customer to view their stock holdings:</legend>
-        <select name="viewCustStockSelect">
-          <option value="FirstnameLastname">SampleFirstName SampleLastName</option>  
+        <select name="viewCustStockOwnSelect">
         </select><br>
         <input type="submit" value="View Stocks Owned">
       </fieldset>
