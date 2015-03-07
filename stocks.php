@@ -30,6 +30,18 @@
       die();
     }
 
+    // Get JSON object of all open stock orders 
+    if (isset($_GET['getAllOpenOrders'])) {
+      getAllOpenOrders();
+      die();
+    }
+
+    // Get JSON object of all stock names 
+    if (isset($_GET['getCustBankInfo']) && isset($_GET['ssNum'])) {
+      getCustBankInfo($_GET['ssNum']);
+      die();
+    }
+
     // Get view of one customer
     if (isset($_GET['getOneCustInfo']) && isset($_GET['ssNum'])) {
       getSingleCustomerInfo($_GET['ssNum']);
@@ -159,6 +171,18 @@
         echo 'EmptyParams';
         die();
       }
+    }
+
+    // Delete a single customer
+    if (isset($_GET['deleteCustomer']) && isset($_GET['custSsNum'])) {
+      deleteCustomer($_GET['custSsNum']);
+      die();
+    }
+
+    // Update a single stock price
+    if (isset($_GET['updateStockPrice']) && isset($_GET['newStkPrice']) && isset($_GET['stkSym'])) {
+      updateStockPrice($_GET['newStkPrice'], $_GET['stkSym']);
+      die();
     }
   }
 
@@ -558,6 +582,7 @@
 
     // No results were returned, exit.
     if ($res->num_rows === 0) {
+      echo "noRecords";
       return;
     }
 
@@ -598,6 +623,7 @@
 
     // No results were returned, exit.
     if ($res->num_rows === 0) {
+      echo "noRecords";
       return;
     }
 
@@ -610,5 +636,135 @@
 
     $finaljson = json_encode($stocksArr);
     echo $finaljson;  
+  }
+
+  function getAllOpenOrders() {
+    global $mysqli;
+
+    // Prepare the select statment
+    if (!($stmt = $mysqli->prepare("SELECT order_status, order_type, qty_ordered, 
+      order_start_date, CONCAT(c.first_name,' ',c.last_name) as customer_name, 
+      s.stock_name 
+      FROM stock_orders so INNER JOIN customer c ON so.cust_id=c.id 
+      INNER JOIN stocks s ON so.stock_id = s.id WHERE order_status = 'open'"))) {
+      echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+      die();
+    }
+
+    if (!$stmt->execute()) {
+      echo "Execute failed: (" . $mysqli->errno . ") " . $mysqli->error;
+    }
+
+    if (!($res = $stmt->get_result())) {
+      echo "Getting result set failed: (" . $stmt->errno . ") " . $stmt->error;
+    }
+
+    // No results were returned, exit.
+    if ($res->num_rows === 0) {
+      echo "noRecords";
+      return;
+    }
+
+    for($row_no = ($res->num_rows - 1); $row_no >= 0; $row_no--) {
+      $res->data_seek($row_no);
+      $row = $res->fetch_assoc();
+
+      $stocksArr[] = json_encode($row);
+    }
+
+    $finaljson = json_encode($stocksArr);
+    echo $finaljson;  
+  }
+
+  function getCustBankInfo($custSsId) {
+    global $mysqli;
+
+    // Prepare the select statment
+    if (!($stmt = $mysqli->prepare("SELECT bank_name, account_num 
+      from bank_acct ba INNER JOIN customer c ON ba.cust_id = c.id 
+      WHERE c.social_security_num = ?;"))) {
+      echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+      die();
+    }
+
+    if (!$stmt->bind_param("i", $custSsId)) {
+          echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+    }
+
+    if (!$stmt->execute()) {
+      echo "Execute failed: (" . $mysqli->errno . ") " . $mysqli->error;
+    }
+
+    if (!($res = $stmt->get_result())) {
+      echo "Getting result set failed: (" . $stmt->errno . ") " . $stmt->error;
+    }
+
+    // No results were returned, exit.
+    if ($res->num_rows === 0) {
+      echo "noRecords";
+      return;
+    }
+
+    for($row_no = ($res->num_rows - 1); $row_no >= 0; $row_no--) {
+      $res->data_seek($row_no);
+      $row = $res->fetch_assoc();
+
+      $stocksArr[] = json_encode($row);
+    }
+
+    $finaljson = json_encode($stocksArr);
+    echo $finaljson; 
+  }
+
+  function deleteCustomer($custSsId) {
+    global $mysqli;
+
+    $custId = getCustomerDbKey($custSsId);
+
+    // Prepare the insert statment
+    if (!($stmt = $mysqli->prepare("DELETE FROM customer 
+      WHERE social_security_num=?;"))) {
+      echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+      die();
+    }
+
+    // Add values to SQL insert statement
+    if (!$stmt->bind_param("i", $custSsId)) {
+      echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+      die();
+    }
+
+    // Execute sql statement
+    if (!$stmt->execute()) {
+      echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+      die();
+    }
+
+    echo "deleteSuccessful";
+  }
+
+  function updateStockPrice($newPrice, $stkSym) {
+    global $mysqli;
+
+    // Prepare the insert statment
+    if (!($stmt = $mysqli->prepare("UPDATE stocks SET stock_price=? 
+      WHERE stock_symbol=?;"))) {
+      echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+      die();
+    }
+
+    // Add values to SQL insert statement
+    if (!$stmt->bind_param("is", $newPrice, $stkSym)) {
+      echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+      die();
+    }
+
+    // Execute sql statement
+    if (!$stmt->execute()) {
+      echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+      die();
+    }
+
+    echo "updateSuccessful"; 
   }
 ?>

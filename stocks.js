@@ -77,6 +77,40 @@ function populateComboBoxes() {
 
 // VIEW DATA FUNCTIONS: ----------------------------------
 
+function populateOpenOrders() {
+
+  // Define Async return function
+  var popOpenOrdersFunc = function(request){
+    return function() {
+      if(request.readyState == 4) {
+        var containerId = 'openStockOrdersView';
+        var container = document.getElementById(containerId);
+
+        var resultObj = JSON.parse(request.responseText);
+
+        if (request.responseText === 'noRecords') {
+          container.innerText = 'No data returned';
+          return;
+        }
+
+        // Clear out empty message 
+        container.innerText = '';
+
+        var tableParamObj = new Array();
+        for (var i = 0; i < resultObj.length; i++) {
+          tableParamObj.push(JSON.parse(resultObj[i]));
+        }
+
+        addTable(containerId, tableParamObj);
+      }
+    }
+  };
+
+  callStockPhp('getAllOpenOrders', popOpenOrdersFunc);
+
+  return false; 
+}
+
 // Populate all stock combo boxes 
 function popAllStockNameComboBoxes() {
   var popStkNameComBoFunc = function(request){
@@ -84,6 +118,7 @@ function popAllStockNameComboBoxes() {
       if(request.readyState == 4) {
         var stkContainers = new Array();
         stkContainers.push(document.getElementsByName('viewStockNameSelect'));
+        stkContainers.push(document.getElementsByName('updStockPriceSelect'));
 
         for (var i = 0; i < stkContainers.length; i++) {
           var objArray = JSON.parse(request.responseText);
@@ -142,6 +177,8 @@ function popAllCustomerComboBoxes() {
         custContainers.push(document.getElementsByName('custForStockOwnInsert'));
         custContainers.push(document.getElementsByName('viewCustFeeSelect'));
         custContainers.push(document.getElementsByName('viewCustStockOwnSelect'));
+        custContainers.push(document.getElementsByName('viewCustBankSelect'));
+        custContainers.push(document.getElementsByName('delCustBankSelect'));
 
         for (var i = 0; i < custContainers.length; i++) {
           var objArray = JSON.parse(request.responseText);
@@ -170,17 +207,16 @@ function findStkOwnershipInfo() {
         var containerId = 'custOwnedStocksView';
         var container = document.getElementById(containerId);
 
-        // Returns an array
+        if (request.responseText === 'noRecords') {
+          container.innerText = 'No data returned';
+          return;
+        }
+
+        // Result is an array of JSON objects 
         var resultObj = JSON.parse(request.responseText);
 
         // Clear out empty message 
         container.innerText = '';
-
-        // Work in progress
-        // if (resultObj.length === 0) {
-        //   container.innerText = 'No data returned';
-        //   return;
-        // }
 
         var tableParamObj = new Array();
         for (var i = 0; i < resultObj.length; i++) {
@@ -212,6 +248,11 @@ function findFeeInfo() {
       if(request.readyState == 4) {
         var containerId = 'custFeeView';
         var container = document.getElementById(containerId);
+
+        if (request.responseText === 'noRecords') {
+          container.innerText = 'No data returned';
+          return;
+        }
 
         // Returns an array
         var resultObj = JSON.parse(request.responseText);
@@ -305,6 +346,46 @@ function findCustInfo() {
   };
 
   callStockPhp('getOneCustInfo', viewOneCustFunc, custParams);
+
+  return false;
+}
+
+function findBankAcctInfo() {
+  // Define Async return function
+  var viewCustBankFunc = function(request){
+    return function() {
+      if(request.readyState == 4) {
+        var containerId = 'custBankAcctView';
+        var container = document.getElementById(containerId);
+
+        if (request.responseText === 'noRecords') {
+          container.innerText = 'No data returned';
+          return;
+        }
+
+        var resultObj = JSON.parse(request.responseText);
+
+        // Clear out empty message 
+        container.innerText = '';
+
+        var tableParamObj = new Array();
+        for (var i = 0; i < resultObj.length; i++) {
+          tableParamObj.push(JSON.parse(resultObj[i]));
+        }
+
+        addTable(containerId, tableParamObj);
+      }
+    }
+  };
+
+  // Create object that holds the SQL query
+  var selectedOption = document.getElementsByName('viewCustBankSelect');
+  selectedOption = selectedOption[0];
+  var custParams = {
+    ssNum: selectedOption.options[selectedOption.selectedIndex].value
+  };
+
+  callStockPhp('getCustBankInfo', viewCustBankFunc, custParams);
 
   return false;
 }
@@ -537,6 +618,74 @@ function insertNewCust() {
   };
 
   callStockPhp('insertNewCust', insertNewCustFunc, custParams);
+
+  return false;
+}
+
+// DELETE DATA FUNCTIONS ----------------------------------
+
+function deleteCustomer() {
+  // Get form values
+  var custSsNum = document.getElementsByName('delCustBankSelect');
+  custSsNum = custSsNum[0].options[custSsNum[0].selectedIndex].value; 
+
+  // Create Return function
+  var deleteCustFunc = function(request){
+    return function() {
+      if(request.readyState == 4) {
+        if (request.responseText === 'deleteFailed') {
+          alert('Delete failed.');
+        }
+        else {
+          alert('Customer Delete Successful');
+        }
+
+        location.reload();
+      }
+    }
+  };
+
+  // Create Php parameters
+  var custParams = {
+    custSsNum: custSsNum
+  };
+
+  callStockPhp('deleteCustomer', deleteCustFunc, custParams);
+
+  return false; 
+}
+
+// UPDATE DATA FUNCTIONS ----------------------------------
+
+function updateStockPrice() {
+  // Get form values
+  var newStkPrice = document.getElementById('updatedStkPrice').value;
+  var stkSym = document.getElementsByName('updStockPriceSelect');
+  stkSym = stkSym[0].options[stkSym[0].selectedIndex].value;
+
+  // Create Return function
+  var updateStkPriceFunc = function(request){
+    return function() {
+      if(request.readyState == 4) {
+        if (request.responseText === 'updateFailed') {
+          alert('Stock Price Update Failed');
+        }
+        else {
+          alert('Stock Price Update Successful');
+        }
+
+        location.reload();
+      }
+    }
+  };
+
+  // Create Php parameters
+  var stkParams = {
+    newStkPrice: newStkPrice,
+    stkSym: stkSym
+  };
+
+  callStockPhp('updateStockPrice', updateStkPriceFunc, stkParams);
 
   return false;
 }

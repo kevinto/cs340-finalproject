@@ -5,7 +5,7 @@
   <title>Stock Database</title>
   <script src='stocks.js'></script>
 </head>
-<body onload="populateComboBoxes();">
+<body onload="populateComboBoxes(); populateOpenOrders();">
   <h1>Database Insert Section:</h1>
   <form onsubmit="return insertNewCust();">
     <fieldset>
@@ -167,11 +167,10 @@
   </div>
   <div>
     <h2>Customer Bank Account Info Section:</h2>
-    <form action="http://www.google" method="GET">
+    <form onsubmit="return findBankAcctInfo();">
       <fieldset>
         <legend>Please select a customer to view their bank account info:</legend>
         <select name="viewCustBankSelect">
-          <option value="FirstnameLastname">SampleFirstName SampleLastName</option>  
         </select><br>
         <input type="submit" value="View Customer Bank Info">
       </fieldset>
@@ -183,11 +182,10 @@
   </div>
   <div>
     <h1>Customer Deletion Section:</h1>
-    <form action="http://www.google" method="GET">
+    <form onsubmit="return deleteCustomer();">
       <fieldset>
         <legend>Please select a customer delete: </legend>
         <select name="delCustBankSelect">
-          <option value="FirstnameLastname">SampleFirstName SampleLastName</option>  
         </select><br>
         <input type="submit" value="Delete Customer">
       </fieldset>
@@ -195,14 +193,13 @@
   </div>
   <div>
     <h1>Stock Price Update Section: </h1>
-    <form action="http://www.google" method="GET">
+    <form onsubmit="return updateStockPrice();">
       <fieldset>
         <legend>Please select a stock to update the price of:</legend>
         <select name="updStockPriceSelect">
-          <option value="SampleStockName">SampleStockName</option> 
         </select><br>
         <label>New Price (example: 9.99): </label>
-        <input type="number" name="updatedStkPrice"><br> 
+        <input type="number" id="updatedStkPrice"><br> 
         <input type="submit" value="Update Price">
       </fieldset>
     </form>
